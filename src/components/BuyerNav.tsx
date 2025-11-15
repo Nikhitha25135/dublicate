@@ -20,20 +20,28 @@ const BuyerNav = () => {
           
           <div className="hidden md:flex items-center gap-6">
             <Link 
-              to="/" 
+              to="/buyer/home" 
               className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive('/') ? 'text-primary' : 'text-foreground'
+                isActive('/buyer/home') ? 'text-primary' : 'text-foreground'
               }`}
             >
               Home
             </Link>
             <Link 
-              to="/" 
+              to="/artisans" 
               className={`text-sm font-medium transition-colors hover:text-primary ${
-                isActive('/products') ? 'text-primary' : 'text-foreground'
+                isActive('/artisans') ? 'text-primary' : 'text-foreground'
               }`}
             >
-              Products
+              Artisans
+            </Link>
+            <Link 
+              to="/about" 
+              className={`text-sm font-medium transition-colors hover:text-primary ${
+                isActive('/about') ? 'text-primary' : 'text-foreground'
+              }`}
+            >
+              About Us
             </Link>
             <Link 
               to="/artisans" 

@@ -8,6 +8,7 @@ const SellerNav = () => {
   
   const navItems = [
     { path: "/seller/dashboard", label: "Dashboard", icon: LayoutDashboard },
+    { path: "/seller/products/upload", label: "Upload Product", icon: Package },
     { path: "/seller/ai-tools", label: "AI Tools", icon: Sparkles },
     { path: "/seller/orders", label: "Orders & Insights", icon: Package },
   ];
