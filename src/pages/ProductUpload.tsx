@@ -11,27 +11,74 @@ import { toast } from "sonner";
 
 const ProductUpload = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [category, setCategory] = useState("");
+  const [loading, setLoading] = useState(false);
 
+  const seller = JSON.parse(localStorage.getItem("seller") || "{}");
+
+  // ------------------ IMAGE UPLOAD ------------------
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setSelectedImage(reader.result as string);
-      };
+      reader.onloadend = () => setSelectedImage(reader.result as string);
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // ------------------ SUBMIT FORM ------------------
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Product uploaded successfully!");
+
+    if (!selectedImage) {
+      toast.error("Please upload a product image!");
+      return;
+    }
+
+    const title = (document.getElementById("title") as HTMLInputElement).value;
+    const price = (document.getElementById("price") as HTMLInputElement).value;
+    const description = (document.getElementById("description") as HTMLTextAreaElement).value;
+
+    const productData = {
+      sellerId: seller.id,
+      title,
+      price,
+      category,
+      description,
+      image: selectedImage, // base64 image
+    };
+
+    setLoading(true);
+
+    try {
+      const res = await fetch("http://localhost:5001/product/upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(productData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.message || "Product upload failed");
+        setLoading(false);
+        return;
+      }
+
+      toast.success("Product uploaded successfully!");
+      setSelectedImage(null);
+
+    } catch (error) {
+      toast.error("Server error, try again!");
+    }
+
+    setLoading(false);
   };
 
   return (
     <div className="min-h-screen bg-background">
       <SellerNav />
-      
+
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-3xl mx-auto">
           <div className="mb-8">
@@ -45,13 +92,15 @@ const ProductUpload = () => {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Image Upload */}
+
+                {/* IMAGE UPLOAD */}
                 <div>
                   <Label>Product Image</Label>
                   <div className="mt-2">
                     {selectedImage ? (
                       <div className="relative aspect-square rounded-lg overflow-hidden bg-muted max-w-md mx-auto">
                         <img src={selectedImage} alt="Product preview" className="w-full h-full object-cover" />
+
                         <Button
                           type="button"
                           variant="secondary"
@@ -69,11 +118,10 @@ const ProductUpload = () => {
                           <p className="mb-2 text-sm text-muted-foreground">
                             <span className="font-semibold">Click to upload</span> or drag and drop
                           </p>
-                          <p className="text-xs text-muted-foreground">PNG, JPG or WEBP</p>
                         </div>
-                        <input 
-                          type="file" 
-                          className="hidden" 
+                        <input
+                          type="file"
+                          className="hidden"
                           accept="image/*"
                           onChange={handleImageUpload}
                         />
@@ -82,31 +130,22 @@ const ProductUpload = () => {
                   </div>
                 </div>
 
-                {/* Title */}
+                {/* TITLE */}
                 <div>
                   <Label htmlFor="title">Product Title</Label>
-                  <Input 
-                    id="title" 
-                    placeholder="e.g., Handwoven Cotton Saree"
-                    required
-                  />
+                  <Input id="title" placeholder="e.g., Handwoven Cotton Saree" required />
                 </div>
 
-                {/* Price */}
+                {/* PRICE */}
                 <div>
                   <Label htmlFor="price">Price (₹)</Label>
-                  <Input 
-                    id="price" 
-                    type="number" 
-                    placeholder="2999"
-                    required
-                  />
+                  <Input id="price" type="number" placeholder="2999" required />
                 </div>
 
-                {/* Category */}
+                {/* CATEGORY */}
                 <div>
                   <Label htmlFor="category">Category</Label>
-                  <Select>
+                  <Select onValueChange={setCategory}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
@@ -121,21 +160,27 @@ const ProductUpload = () => {
                   </Select>
                 </div>
 
-                {/* Description */}
+                {/* DESCRIPTION */}
                 <div>
                   <Label htmlFor="description">Product Description</Label>
-                  <Textarea 
-                    id="description" 
-                    placeholder="Describe your product, the materials used, crafting technique, and what makes it special..."
+                  <Textarea
+                    id="description"
+                    placeholder="Describe your product..."
                     rows={6}
                     required
                   />
                 </div>
 
-                <Button type="submit" className="w-full bg-gradient-warm hover:opacity-90" size="lg">
+                <Button
+                  type="submit"
+                  className="w-full bg-gradient-warm hover:opacity-90"
+                  size="lg"
+                  disabled={loading}
+                >
                   <Upload className="mr-2 h-5 w-5" />
-                  Upload Product
+                  {loading ? "Uploading..." : "Upload Product"}
                 </Button>
+
               </form>
             </CardContent>
           </Card>

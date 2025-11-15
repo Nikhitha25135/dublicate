@@ -8,13 +8,45 @@ import { toast } from "sonner";
 
 const BuyerLogin = () => {
   const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Login successful!");
-    navigate('/buyer/home');
+    setLoading(true);
+
+    try {
+      const res = await fetch("http://localhost:5001/buyer/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+      console.log("Login API Response:", data);
+
+      if (!res.ok) {
+        toast.error(data.message || "Invalid credentials");
+        setLoading(false);
+        return;
+      }
+
+      toast.success("Login successful!");
+
+      // Store user data
+      localStorage.setItem("buyer", JSON.stringify(data.buyer));
+
+      // Redirect to buyer home
+      navigate("/buyer/home");
+
+    } catch (error) {
+      console.error("Login Error:", error);
+      toast.error("Server error, please try again!");
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -22,15 +54,18 @@ const BuyerLogin = () => {
       <Card className="w-full max-w-md shadow-elevated">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold">Buyer Login</CardTitle>
-          <p className="text-muted-foreground">Welcome back! Sign in to continue shopping</p>
+          <p className="text-muted-foreground">
+            Welcome back! Sign in to continue shopping.
+          </p>
         </CardHeader>
+
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <Label htmlFor="email">Email</Label>
-              <Input 
-                id="email" 
-                type="email" 
+              <Input
+                id="email"
+                type="email"
                 placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -40,9 +75,9 @@ const BuyerLogin = () => {
 
             <div>
               <Label htmlFor="password">Password</Label>
-              <Input 
-                id="password" 
-                type="password" 
+              <Input
+                id="password"
+                type="password"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -50,25 +85,30 @@ const BuyerLogin = () => {
               />
             </div>
 
-            <Button type="submit" className="w-full bg-gradient-warm hover:opacity-90">
-              Sign In
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gradient-warm hover:opacity-90"
+            >
+              {loading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
 
           <div className="text-center mt-6">
             <p className="text-muted-foreground">
               Don't have an account?{" "}
-              <Button 
-                variant="link" 
+              <Button
+                variant="link"
                 className="p-0 text-primary"
-                onClick={() => navigate('/buyer/signup')}
+                onClick={() => navigate("/buyer/signup")}
               >
                 Sign up
               </Button>
             </p>
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/role-selection')}
+
+            <Button
+              variant="ghost"
+              onClick={() => navigate("/role-selection")}
               className="mt-4 text-muted-foreground"
             >
               ← Back to role selection
