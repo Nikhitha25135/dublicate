@@ -7,7 +7,7 @@ import product1 from "@/assets/product-1.jpg";
 import product2 from "@/assets/product-2.jpg";
 import product3 from "@/assets/product-3.jpg";
 
-const Index = () => {
+const BuyerHome = () => {
   const featuredProducts = [
     {
       id: "1",
@@ -98,4 +98,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default BuyerHome;

@@ -16,8 +16,8 @@ const SellerSignup = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Signup successful! Welcome to AI Artisans.");
-    navigate("/seller/dashboard");
+    toast.success("Registration successful! Welcome to AI Artisans.");
+    navigate('/seller/dashboard');
   };
 
   const toggleBrandType = (type: string) => {
@@ -95,6 +95,26 @@ const SellerSignup = () => {
               Create Seller Account
             </Button>
           </form>
+
+          <div className="text-center mt-6">
+            <p className="text-muted-foreground">
+              Already have an account?{" "}
+              <Button 
+                variant="link" 
+                className="p-0 text-accent"
+                onClick={() => navigate('/seller/login')}
+              >
+                Sign in
+              </Button>
+            </p>
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate('/role-selection')}
+              className="mt-4 text-muted-foreground"
+            >
+              ← Back to role selection
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>
