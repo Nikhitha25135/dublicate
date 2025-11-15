@@ -10,6 +10,40 @@ import { toast } from "sonner";
 
 const AITools = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [removedBgUrl, setRemovedBgUrl] = useState<string | null>(null);
+
+  const removeBackground = async () => {
+    if (!selectedFile) return toast.error("Please upload an image!");
+
+    try {
+      setIsProcessing(true);
+      const form = new FormData();
+      form.append("image", selectedFile);
+
+      const res = await fetch("http://localhost:5001/remove-bg", {
+        method: "POST",
+        body: form,
+      });
+
+      if (!res.ok) {
+        toast.error("Background removal failed");
+        return;
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      setRemovedBgUrl(url);
+
+      toast.success("Background removed successfully!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -123,13 +157,27 @@ const AITools = () => {
                   </div>
                 </div>
 
-                <Button 
-                  onClick={handleGenerateMarketing} 
+                <Button
+                  onClick={removeBackground}
                   className="w-full bg-gradient-warm hover:opacity-90"
-                  disabled={!selectedFile}
+                  disabled={!selectedFile || isProcessing}
                 >
-                  Generate Marketing Materials
+                  {isProcessing ? "Processing..." : "Remove Background"}
                 </Button>
+                {removedBgUrl && (
+                  <div className="p-4 bg-muted rounded-lg border border-border">
+                    <Label className="text-sm font-semibold mb-2 block">
+                      Background Removed Image
+                    </Label>
+                    <img 
+                      src={removedBgUrl} 
+                      alt="Removed background" 
+                      className="max-w-xs rounded-md shadow-md"
+                    />
+                  </div>
+                )}
+
+
 
                 <div className="space-y-4 pt-4">
                   <div className="p-4 bg-muted rounded-lg border border-border">
