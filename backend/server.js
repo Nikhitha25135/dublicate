@@ -7,11 +7,6 @@ const { exec } = require("child_process");
 const path = require("path");
 const fs = require("fs");
 
-// Import Routes
-const buyerRoutes = require("./routes/buyerRoutes");
-const sellerRoutes = require("./routes/sellerRoutes");
-const productRoutes = require("./routes/productRoutes");
-
 const app = express();
 
 // ------------------ Middleware ------------------
@@ -30,16 +25,22 @@ mongoose
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => console.log("❌ MongoDB Error:", err));
 
+// ------------------ Import Routes ------------------
+const buyerRoutes = require("./routes/buyerRoutes");
+const sellerRoutes = require("./routes/sellerRoutes");
+const productRoutes = require("./routes/productRoutes");
+const cartRoutes = require("./routes/cartRoutes");
+
 // ------------------ API Routes ------------------
 app.use("/buyer", buyerRoutes);
 app.use("/seller", sellerRoutes);
 app.use("/product", productRoutes);
+app.use("/cart", cartRoutes);
 
 // ------------------ Multer ------------------
 const upload = multer({ dest: "uploads/" });
 
-// ------------------ Python VERSION (UPDATED) ------------------
-// You said: "instead of py keep python"
+// ------------------ Python VERSION ------------------
 const PYTHON = "python";
 
 // ====================================================
@@ -103,5 +104,5 @@ app.post("/fabric-mockup", upload.single("image"), (req, res) => {
 // 🚀 SERVER START
 // ====================================================
 app.listen(5001, () => {
-  console.log("API running on port 5001");
+  console.log("🚀 API running on port 5001");
 });

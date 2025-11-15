@@ -60,5 +60,20 @@ router.post("/login", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+// ------------------ GET BUYER BY ID ------------------
+router.get("/:id", async (req, res) => {
+  try {
+    const buyer = await Buyer.findById(req.params.id);
+
+    if (!buyer) {
+      return res.status(404).json({ message: "Buyer not found" });
+    }
+
+    res.json(buyer);
+  } catch (error) {
+    console.error("Get buyer error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 
 module.exports = router;

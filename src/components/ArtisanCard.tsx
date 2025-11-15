@@ -1,35 +1,19 @@
-import { Card, CardContent } from "./ui/card";
-import { Badge } from "./ui/badge";
+import { Link } from "react-router-dom";
 
-interface ArtisanCardProps {
-  name: string;
-  image: string;
-  craft: string;
-  brand: string;
-  description: string;
-}
-
-const ArtisanCard = ({ name, image, craft, brand, description }: ArtisanCardProps) => {
+const ArtisanCard = ({ artisan }: any) => {
   return (
-    <Card className="overflow-hidden transition-all duration-300 hover:shadow-elevated border-border">
-      <div className="aspect-square overflow-hidden bg-muted">
-        <img 
-          src={image} 
-          alt={name}
-          className="w-full h-full object-cover"
+    <Link to={`/artisan/${artisan._id}`}>
+      <div className="border rounded-lg shadow-lg p-4 hover:shadow-2xl transition-all cursor-pointer">
+        <img
+          src={artisan.profilePic || "https://via.placeholder.com/300"}
+          className="w-full h-52 object-cover rounded-md mb-4"
+          alt={artisan.name}
         />
+        <h2 className="text-xl font-bold">{artisan.name}</h2>
+        <p className="text-sm text-muted-foreground">{artisan.craft}</p>
+        <p className="font-medium mt-1">{artisan.brand}</p>
       </div>
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between mb-2">
-          <h3 className="font-bold text-xl">{name}</h3>
-          <Badge variant="secondary" className="bg-accent/10 text-accent border-accent/20">
-            {craft}
-          </Badge>
-        </div>
-        <p className="text-sm font-medium text-muted-foreground mb-3">{brand}</p>
-        <p className="text-sm text-muted-foreground line-clamp-3">{description}</p>
-      </CardContent>
-    </Card>
+    </Link>
   );
 };
 

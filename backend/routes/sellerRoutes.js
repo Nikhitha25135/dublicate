@@ -2,10 +2,12 @@ const express = require("express");
 const router = express.Router();
 const Seller = require("../models/Seller");
 
-// ------------------ SELLER SIGNUP ------------------
+/* -----------------------------------
+   🟢 SELLER SIGNUP
+----------------------------------- */
 router.post("/signup", async (req, res) => {
   try {
-    const { name, brandName, address, craftTypes, description, email, password } = req.body;
+    const { name, brandName, address, craftTypes, description, email, password, profilePic } = req.body;
 
     const exists = await Seller.findOne({ email });
     if (exists) {
@@ -19,12 +21,17 @@ router.post("/signup", async (req, res) => {
       craftTypes,
       description,
       email,
-      password,
+      password, // (optional) hashing recommended
+      profilePic: profilePic || null,
     });
 
     return res.status(201).json({
       message: "Seller registered successfully",
-      seller,
+      seller: {
+        id: seller._id,
+        name: seller.name,
+        brandName: seller.brandName,
+      },
     });
 
   } catch (error) {
@@ -33,7 +40,9 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-// ------------------ SELLER LOGIN ------------------
+/* -----------------------------------
+   🟡 SELLER LOGIN
+----------------------------------- */
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -56,6 +65,34 @@ router.post("/login", async (req, res) => {
 
   } catch (error) {
     console.error("Login error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* -----------------------------------
+   🔵 GET ALL SELLERS (ARTISANS PAGE)
+----------------------------------- */
+router.get("/all", async (req, res) => {
+  try {
+    const sellers = await Seller.find().select("-password");
+    res.json(sellers);
+  } catch (error) {
+    console.error("Fetch sellers error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* -----------------------------------
+   🟣 GET SINGLE SELLER BY ID
+----------------------------------- */
+router.get("/:id", async (req, res) => {
+  try {
+    const seller = await Seller.findById(req.params.id).select("-password");
+    if (!seller) return res.status(404).json({ message: "Seller not found" });
+
+    res.json(seller);
+  } catch (error) {
+    console.error("Fetch seller error:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
