@@ -12,6 +12,8 @@ const AITools = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [removedBgUrl, setRemovedBgUrl] = useState<string | null>(null);
+  const [mockupResults, setMockupResults] = useState<any>(null);
+
 
   const removeBackground = async () => {
     if (!selectedFile) return toast.error("Please upload an image!");
@@ -53,9 +55,37 @@ const AITools = () => {
     }
   };
 
-  const handleVisualize = () => {
-    toast.success("Generating cloth visualizations...");
-  };
+  const handleVisualize = async () => {
+  if (!selectedFile) return toast.error("Please upload a cloth image!");
+
+  try {
+    setIsProcessing(true);
+    const formData = new FormData();
+    formData.append("image", selectedFile);
+
+    const res = await fetch("http://localhost:5001/fabric-mockup", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+      toast.error("Mockup generation failed");
+      return;
+    }
+
+    setMockupResults(data);
+    toast.success("Mockups generated successfully!");
+
+  } catch (err) {
+    console.error(err);
+    toast.error("Something went wrong");
+  } finally {
+    setIsProcessing(false);
+  }
+};
+
 
   const handleGenerateMarketing = () => {
     toast.success("Creating marketing materials with AI...");
@@ -120,13 +150,31 @@ const AITools = () => {
                   Generate Visualizations
                 </Button>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
-                  {["Frock", "Curtain", "Cushion Cover", "Table Runner"].map((item) => (
-                    <div key={item} className="aspect-square bg-muted rounded-lg flex items-center justify-center border border-border">
-                      <p className="text-sm text-muted-foreground">{item}</p>
-                    </div>
-                  ))}
-                </div>
+                {mockupResults && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
+                    {mockupResults.pillow && (
+                      <div className="p-2 bg-muted rounded-lg border border-border">
+                        <p className="font-semibold mb-2">Pillow</p>
+                        <img src={mockupResults.pillow} className="rounded-md w-full" />
+                      </div>
+                    )}
+
+                    {mockupResults.dress && (
+                      <div className="p-2 bg-muted rounded-lg border border-border">
+                        <p className="font-semibold mb-2">Dress</p>
+                        <img src={mockupResults.dress} className="rounded-md w-full" />
+                      </div>
+                    )}
+
+                    {mockupResults.tote && (
+                      <div className="p-2 bg-muted rounded-lg border border-border">
+                        <p className="font-semibold mb-2">Tote Bag</p>
+                        <img src={mockupResults.tote} className="rounded-md w-full" />
+                      </div>
+                    )}
+                  </div>
+                )}
+
               </CardContent>
             </Card>
           </TabsContent>
