@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const Seller = require("../models/Seller");
+const Product = require("../models/Product");
+const mongoose = require("mongoose");
 
 /* -----------------------------------
    🟢 SELLER SIGNUP
@@ -21,7 +23,7 @@ router.post("/signup", async (req, res) => {
       craftTypes,
       description,
       email,
-      password, // (optional) hashing recommended
+      password,
       profilePic: profilePic || null,
     });
 
@@ -33,7 +35,6 @@ router.post("/signup", async (req, res) => {
         brandName: seller.brandName,
       },
     });
-
   } catch (error) {
     console.error("Signup error:", error);
     res.status(500).json({ message: "Server error" });
@@ -62,7 +63,6 @@ router.post("/login", async (req, res) => {
         email: seller.email,
       },
     });
-
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Server error" });
@@ -94,6 +94,25 @@ router.get("/:id", async (req, res) => {
   } catch (error) {
     console.error("Fetch seller error:", error);
     res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* -----------------------------------
+   ⭐ GET ALL PRODUCTS OF A SELLER
+----------------------------------- */
+router.get("/:id/products", async (req, res) => {
+  try {
+    const sellerId = req.params.id;
+
+    // Convert to ObjectId if needed
+    const products = await Product.find({
+      sellerId: new mongoose.Types.ObjectId(sellerId)
+    });
+
+    return res.json(products);
+  } catch (error) {
+    console.error("Fetch seller products error:", error);
+    return res.status(500).json({ message: "Server error" });
   }
 });
 

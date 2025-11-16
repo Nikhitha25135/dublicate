@@ -25,22 +25,22 @@ mongoose
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => console.log("❌ MongoDB Error:", err));
 
-// ------------------ Import Routes ------------------
+// ------------------ Import API Routes ------------------
 const buyerRoutes = require("./routes/buyerRoutes");
 const sellerRoutes = require("./routes/sellerRoutes");
 const productRoutes = require("./routes/productRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 
-// ------------------ API Routes ------------------
+// ------------------ Use Routes ------------------
 app.use("/buyer", buyerRoutes);
 app.use("/seller", sellerRoutes);
 app.use("/product", productRoutes);
-app.use("/cart", cartRoutes);
+app.use("/cart", cartRoutes);     // <--- Cart system enabled
 
 // ------------------ Multer ------------------
 const upload = multer({ dest: "uploads/" });
 
-// ------------------ Python VERSION ------------------
+// ------------------ Python Interpreter ------------------
 const PYTHON = "python";
 
 // ====================================================
@@ -101,7 +101,7 @@ app.post("/fabric-mockup", upload.single("image"), (req, res) => {
 });
 
 // ====================================================
-// 🚀 SERVER START
+// 🚀 START SERVER
 // ====================================================
 app.listen(5001, () => {
   console.log("🚀 API running on port 5001");

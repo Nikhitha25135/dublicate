@@ -1,64 +1,83 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import BuyerNav from "@/components/BuyerNav";
-import ProductCard from "@/components/ProductCard";
 
 const ArtisanProfile = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // sellerID
   const [artisan, setArtisan] = useState<any>(null);
   const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const fetchArtisan = async () => {
-    const res = await fetch(`http://localhost:5001/seller/${id}`);
-    const data = await res.json();
-    setArtisan(data);
+  const fetchArtisanData = async () => {
+    try {
+      const res = await fetch(`http://localhost:5001/seller/${id}`);
+      const data = await res.json();
+      if (res.ok) setArtisan(data);
+    } catch (err) {
+      console.log("Error fetching artisan:", err);
+    }
   };
 
-  const fetchProducts = async () => {
-    const res = await fetch(`http://localhost:5001/product/by-seller/${id}`);
-    const data = await res.json();
-    setProducts(data);
+  const fetchArtisanProducts = async () => {
+    try {
+      const res = await fetch(`http://localhost:5001/seller/${id}/products`); // 🔥 FIXED HERE
+      const data = await res.json();
+      if (res.ok) setProducts(data);
+    } catch (err) {
+      console.log("Error fetching products:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    fetchArtisan();
-    fetchProducts();
-  }, [id]);
+    fetchArtisanData();
+    fetchArtisanProducts();
+  }, []);
 
-  if (!artisan) return <div>Loading...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center text-lg">
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
       <BuyerNav />
-
       <div className="container mx-auto px-4 py-10">
-        {/* Artisan details */}
-        <div className="text-center mb-10">
-          <img
-            src={artisan.profilePic || "https://via.placeholder.com/150"}
-            className="w-32 h-32 rounded-full mx-auto mb-4"
-          />
-          <h1 className="text-4xl font-bold">{artisan.name}</h1>
-          <p className="text-lg text-muted-foreground">{artisan.craft}</p>
-          <p>{artisan.brand}</p>
-        </div>
 
-        <h2 className="text-3xl font-bold text-center mb-6">Products by {artisan.name}</h2>
+        {artisan && (
+          <div className="mb-8 text-center">
+            <h1 className="text-4xl font-bold">{artisan.name}</h1>
+            <p className="text-gray-600 text-lg">{artisan.email}</p>
+          </div>
+        )}
+
+        <h2 className="text-2xl font-semibold mb-5 text-center">
+          Products by {artisan?.name}
+        </h2>
 
         {products.length === 0 ? (
-          <p className="text-center text-muted-foreground">No products yet</p>
+          <p className="text-center text-muted-foreground text-lg">No products yet</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {products.map((product) => (
-              <ProductCard
+              <div
                 key={product._id}
-                id={product._id}
-                image={product.image}
-                title={product.title}
-                price={product.price}
-                description={product.description}
-                category={product.category}
-              />
+                className="border rounded-lg p-4 shadow-md hover:shadow-lg transition"
+              >
+                <img
+                  src={product.image}
+                  alt={product.title}
+                  className="w-full h-48 object-cover rounded-md mb-3"
+                />
+
+                <h3 className="font-semibold text-lg">{product.title}</h3>
+                <p className="text-gray-600 line-clamp-2">{product.description}</p>
+                <p className="text-primary font-bold text-lg mt-2">₹{product.price}</p>
+              </div>
             ))}
           </div>
         )}

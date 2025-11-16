@@ -13,8 +13,9 @@ import BuyerHome from "./pages/BuyerHome";
 import ProductDetail from "./pages/ProductDetail";
 import Artisans from "./pages/Artisans";
 import ArtisanProfile from "./pages/ArtisanProfile";
-import CartPage from "./pages/CartPage";
+import MyCart from "./pages/MyCart";         // <-- Updated correct import
 import About from "./pages/About";
+import BuyerProfile from "./pages/BuyerProfile";
 
 import SellerLogin from "./pages/SellerLogin";
 import SellerSignup from "./pages/SellerSignup";
@@ -43,7 +44,8 @@ const App = () => (
           <Route path="/buyer/login" element={<BuyerLogin />} />
           <Route path="/buyer/signup" element={<BuyerSignup />} />
           <Route path="/buyer/home" element={<BuyerHome />} />
-          <Route path="/buyer/cart" element={<CartPage />} />
+          <Route path="/buyer/cart" element={<MyCart />} />   {/* <-- Fixed */}
+          <Route path="/buyer/profile" element={<BuyerProfile />} />
           <Route path="/product/:id" element={<ProductDetail />} />
 
           {/* Artisan Browsing */}
